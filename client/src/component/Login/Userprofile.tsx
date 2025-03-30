@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 type User = {
   id: number;
   name: string;
-  phone:  string; 
+  phone: string;
   address: string;
 };
 
@@ -50,7 +50,7 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
     if (!/^\d{10,11}$/.test(formData.phone.trim())) {
       newErrors.phone = "Số điện thoại phải chứa 10-11 chữ số và chỉ gồm các ký tự số.";
     }
-    
+
 
     if (!formData.address.trim()) {
       newErrors.address = "Địa chỉ không được để trống.";
@@ -86,7 +86,7 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
         },
       });
       if (response.status === 201) {
-        localStorage.setItem('user', JSON.stringify(formData)); 
+        localStorage.setItem('user', JSON.stringify(formData));
         setIsEditing(false);
         toast.info("Chỉnh sửa thành công.");
         console.log("Updated user data:", formData);

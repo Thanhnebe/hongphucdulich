@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuditController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\BookingsController;
+use App\Http\Controllers\Api\CarRentalController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CityController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VnPayController;
 use App\Http\Controllers\Api\Cart;
 use App\Http\Controllers\Api\DetailPaymentController;
+use App\Http\Controllers\Api\FlightController;
 use App\Models\DetailPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
     Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
-    
+
     Route::apiResource('reviews', ReviewController::class);
 });
 
@@ -106,12 +108,11 @@ Route::prefix('payment')->group(function () {
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']); // Xóa thanh toán
     Route::post('/callback', [PaymentController::class, 'paymentCallback']); // Xử lý callback thanh toán
 });;
-Route::prefix('service')->group(function (){
-    Route::get('/',[ServiceController::class,'index']);
-    Route::get('/{paymentId}',[ServiceController::class,'index']);
-    Route::post('/store', [ServiceController::class,'store']);
-    Route::put('/update/{service}', [ServiceController::class,'update']);
-
+Route::prefix('service')->group(function () {
+    Route::get('/', [ServiceController::class, 'index']);
+    Route::get('/{paymentId}', [ServiceController::class, 'index']);
+    Route::post('/store', [ServiceController::class, 'store']);
+    Route::put('/update/{service}', [ServiceController::class, 'update']);
 });
 Route::prefix('dashboard')->group(function () {
     Route::get('/', [ThongKeController::class, 'index']);
@@ -140,7 +141,7 @@ Route::prefix('detailspayment')->group(function () {
 });
 // thêm middleware('auth:sanctum') để lấy Auth::id() khi ghi lại sự kiện xóa, sửa
 Route::apiResource('users', UserController::class);
-Route::put('/updateUser/{id}', [UserController::class, 'updateUser']); 
+Route::put('/updateUser/{id}', [UserController::class, 'updateUser']);
 Route::get('user/search', [UserController::class, 'search']);
 
 Route::post('/momo/create', [MoMoController::class, 'createPayment']);
@@ -161,6 +162,47 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
     Route::delete('/delete', [CartController::class, 'deleteFromCart']);
     Route::get('/',  [CartController::class, 'getAllID']);
     Route::get('/{id}',  [CartController::class, 'show']);
+});
+
+Route::prefix('flight')->group(function () {
+    // Get all flights
+    Route::get('/flights', [FlightController::class, 'index']);
+
+    // Create a new flight
+    Route::post('/flights', [FlightController::class, 'store']);
+
+    // Get a flight by its ID
+    Route::get('/flights/{id}', [FlightController::class, 'show']);
+
+    // Update a flight's information
+    Route::put('/flights/{id}', [FlightController::class, 'update']);
+
+    // Delete a flight
+    Route::delete('/flights/{id}', [FlightController::class, 'destroy']);
+
+    // Search flights by departure, destination, and departure time
+    Route::get('/flights/search', [FlightController::class, 'search']);
+});
+
+Route::prefix('car-rentals')->group(function () {
+
+    // Get all cars for rent (list all)
+    Route::get('/', [CarRentalController::class, 'index']);
+
+    // Add a new car for rent
+    Route::post('/', [CarRentalController::class, 'store']);
+
+    // Get a specific car by ID
+    Route::get('/{id}', [CarRentalController::class, 'show']);
+
+    // Update car rental details (requires authentication)
+    Route::put('/{id}', [CarRentalController::class, 'update']);
+
+    // Delete a car rental (requires authentication)
+    Route::delete('/{id}', [CarRentalController::class, 'destroy']);
+
+    // Return a rented car (update rental and car status)
+    Route::post('/{id}/return', [CarRentalController::class, 'returnCar']);
 });
 
 Route::get('audits', [AuditController::class, 'index']);

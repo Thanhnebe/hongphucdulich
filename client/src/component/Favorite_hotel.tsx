@@ -25,7 +25,7 @@ const Love = () => {
   };
 
   // Lọc các khách sạn yêu thích
-  const favoriteHotelList = hotels.filter((hotel) =>
+  const favoriteHotelList = hotels?.filter((hotel) =>
     favoriteHotels.includes(hotel.id)
   );
 
@@ -40,13 +40,13 @@ const Love = () => {
         </Link>
       </div>
 
-      {favoriteHotelList.length === 0 ? (
+      {favoriteHotelList?.length === 0 ? (
         <p className="text-center text-2xl text-gray-500 mt-8">
           Bạn chưa yêu thích Sản Phẩm nào
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {favoriteHotelList.map((hotel) => (
+          {favoriteHotelList?.map((hotel) => (
             <div
               key={hotel.id}
               className="bg-white rounded-lg shadow-lg overflow-hidden"
@@ -64,11 +64,10 @@ const Love = () => {
                   onClick={() => toggleFavorite(hotel.id, hotel.name)}
                 >
                   <Heart
-                    className={`w-6 h-6 ${
-                      favoriteHotels.includes(hotel.id)
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
+                    className={`w-6 h-6 ${favoriteHotels.includes(hotel.id)
+                      ? "text-red-500"
+                      : "text-gray-400"
+                      }`}
                   />
                 </button>
               </div>

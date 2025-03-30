@@ -35,7 +35,7 @@ const History = () => {
           created_at: new Date(booking.created_at).toISOString().split("T")[0],
           type_room: booking.detailrooms?.room?.type_room || "N/A",
           name: booking.detailrooms?.hotel?.name || "N/A"
-        })) 
+        }))
         .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setBookings(sortedBookings);
@@ -54,17 +54,17 @@ const History = () => {
       const fetchedDetails = response.data.find(
         (item: any) => item.booking && item.booking.id === bookingId
       );
-  
+
       if (fetchedDetails) {
         setSelectedBooking(fetchedDetails.booking);
         setDetailPayment(fetchedDetails.payment);
         const roomInfo = fetchedDetails.booking?.detailrooms?.room;
-      console.log("Room Info: ", roomInfo);
-      if (roomInfo) {
-        console.log("Type of Room: ", roomInfo.type_room);
-      }
+        console.log("Room Info: ", roomInfo);
+        if (roomInfo) {
+          console.log("Type of Room: ", roomInfo.type_room);
+        }
         setIsModalOpen(true);
-       
+
       } else {
         toast.warn("Không tìm thấy chi tiết đơn hàng.");
       }
@@ -75,8 +75,8 @@ const History = () => {
       setIsLoading(false);
     }
   };
-  
-  
+
+
 
   const handleCancelBooking = async (paymentId: number) => {
     if (!detailPayment) {
@@ -140,10 +140,10 @@ const History = () => {
           />
         </div>
         <div className="flex flex-col relative mx-10">
-        
-             <h6 className="text-l font-extrabold text-gray-800">Hotel: {booking.name}</h6>
+
+          <h6 className="text-l font-extrabold text-gray-800">Hotel: {booking.name}</h6>
           <span className="mt-2 mb-1 text-gray-600">
-          <h6 className="text-[16px] font-extrabold text-gray-800">Loại Phòng: {booking.type_room}</h6></span>
+            <h6 className="text-[16px] font-extrabold text-gray-800">Loại Phòng: {booking.type_room}</h6></span>
           <span className="mt-2 mb-1 text-gray-600">
             Checkin: {booking.check_in} - Checkout: {booking.check_out}
           </span>
@@ -175,9 +175,8 @@ const History = () => {
       {Array.from({ length: totalPages }, (_, index) => (
         <button
           key={index}
-          className={`px-4 py-2 rounded-lg ${
-            currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-300 hover:bg-gray-400"
-          }`}
+          className={`px-4 py-2 rounded-lg ${currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-300 hover:bg-gray-400"
+            }`}
           onClick={() => handlePageChange(index + 1)}
         >
           {index + 1}
@@ -206,9 +205,9 @@ const History = () => {
             &times;
           </button>
           <h4 className="text-2xl font-bold mb-5">
-            Chi tiết đơn hàng - Phòng : {selectedBooking.detailrooms.room.type_room || "N/A"}
+            Chi tiết đơn hàng - Phòng : {selectedBooking?.detailrooms?.room?.type_room || "N/A"}
             <br />
-            Số Giường: {selectedBooking.detailrooms.room.bed || "N/A"}
+            Số Giường: {selectedBooking?.detailrooms?.room.bed || "N/A"}
           </h4>
           <div className="space-y-3">
             <p>
@@ -228,13 +227,12 @@ const History = () => {
             <p>
               Trạng thái thanh toán:
               <span
-                className={`ml-2 px-3 py-1 rounded-md ${
-                  detailPayment.status === StatusPayment.COMPLETE
+                className={`ml-2 px-3 py-1 rounded-md ${detailPayment.status === StatusPayment.COMPLETE
                     ? "bg-green-500 text-white"
                     : detailPayment.status === StatusPayment.FAILED
-                    ? "bg-red-500 text-white"
-                    : "bg-yellow-500 text-white"
-                }`}
+                      ? "bg-red-500 text-white"
+                      : "bg-yellow-500 text-white"
+                  }`}
               >
                 {detailPayment.status}
               </span>

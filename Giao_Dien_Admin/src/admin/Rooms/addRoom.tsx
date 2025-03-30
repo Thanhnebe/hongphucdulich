@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { IHotel } from "../../interface/hotel"; // Nhập loại FormData của bạn
+import { IHotel } from "../../interface/hotel"; // Import your FormData type
 import { IRoomsDetail, IType_Room } from "../../interface/rooms";
 import { roomCT } from "../../context/room";
 import { getallHotels } from "../../services/hotel";
 import { getallTypeRoom } from "../../services/typeRoom";
 
 const AddRooms = () => {
-  const { onAdd } = useContext(roomCT); // Giả sử onAdd dùng để thêm khách sạn
+  const { onAdd } = useContext(roomCT); // Assuming onAdd is used to add the room
   const [typeRoom, setTypeR] = useState<IType_Room[]>([]);
   const [hotels, setHotel] = useState<IHotel[]>([]);
 
@@ -15,13 +15,11 @@ const AddRooms = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IRoomsDetail>(); // Sử dụng kiểu IHotel cho form
+  } = useForm<IRoomsDetail>(); // Using the FormData type for form handling
 
-  // Hàm xử lý khi gửi form
   const onSubmit = (data: IRoomsDetail) => {
     const formData = new FormData();
 
-    // Thêm tất cả các trường vào FormData
     formData.append("room_id", data.room_id.toString());
     formData.append("hotel_id", data.hotel_id.toString());
     formData.append("price", data.price.toString());
@@ -29,73 +27,65 @@ const AddRooms = () => {
     formData.append("available_rooms", data.available_rooms.toString());
     formData.append("description", data.description);
 
-    // Thêm ảnh vào FormData nếu có
     if (data.image && data.image[0]) {
       formData.append("image", data.image[0]);
     }
 
-    // console.log("FormData gửi đi:", formData);
-    onAdd(formData); // Giả sử onAdd là một hàm xử lý form data
-    // console.log("Thông tin đẩy lên DB:", data); // Log thông tin được đẩy lên DB
+    onAdd(formData); // Handle form submission
   };
 
   useEffect(() => {
     (async () => {
       try {
         const data = await getallHotels();
-        // console.log("Dữ liệu hotel đã lấy:", data); // Kiểm tra dữ liệu
         setHotel(data.data);
       } catch (error) {
-        alert("Lỗi khi lấy dữ liệu thành phố");
+        alert("Lỗi khi lấy dữ liệu khách sạn");
       }
     })();
   }, []);
+
   useEffect(() => {
     (async () => {
       try {
         const data = await getallTypeRoom();
-        // console.log("Dữ liệu type room đã lấy:", data); // Kiểm tra dữ liệu
         setTypeR(data.data);
       } catch (error) {
-        alert("Lỗi khi lấy dữ liệu thành phố");
+        alert("Lỗi khi lấy dữ liệu loại phòng");
       }
     })();
   }, []);
 
   return (
-    <div className="">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Thêm mới khách sạn
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-xl">
+      <h1 className="text-3xl font-extrabold text-center text-gray-900 mb-8">
+        Thêm Mới Phòng
       </h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex gap-4 flex-col max-w-md mx-auto bg-gray-100 dark:bg-gray-700 text-white p-6 rounded-lg shadow-md"
-      >
-        {/* Type room */}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        {/* Type Room */}
         <div className="flex flex-col">
+          <label className="text-lg font-semibold text-gray-800 mb-2">Loại Phòng</label>
           <select
-            {...register("room_id", { required: "Vui lòng chọn kiểu phòng" })}
-            className="border text-black p-2 rounded-md bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {...register("room_id", { required: "Vui lòng chọn loại phòng" })}
+            className="border p-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Chọn type room</option>
+            <option value="">Chọn loại phòng</option>
             {typeRoom.map((TypeR) => (
               <option key={TypeR.id} value={TypeR.id}>
                 {TypeR.type_room}
               </option>
             ))}
           </select>
-          {errors.room_id && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.room_id.message}
-            </span>
-          )}
+          {errors.room_id && <span className="text-red-600 text-sm mt-2">{errors.room_id.message}</span>}
         </div>
 
-        {/* hotel */}
+        {/* Hotel */}
         <div className="flex flex-col">
+          <label className="text-lg font-semibold text-gray-800 mb-2">Khách Sạn</label>
           <select
             {...register("hotel_id", { required: "Vui lòng chọn khách sạn" })}
-            className="border text-black p-2 rounded-md bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Chọn khách sạn</option>
             {hotels.map((Hotels) => (
@@ -104,95 +94,76 @@ const AddRooms = () => {
               </option>
             ))}
           </select>
-          {errors.hotel_id && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.hotel_id.message}
-            </span>
-          )}
+          {errors.hotel_id && <span className="text-red-600 text-sm mt-2">{errors.hotel_id.message}</span>}
         </div>
 
-        {/* giá */}
+        {/* Price */}
         <div className="flex flex-col">
+          <label className="text-lg font-semibold text-gray-800 mb-2">Giá</label>
           <input
             type="number"
-            placeholder="Giá"
-            {...register("price", {
-              required: "Giá không được để trống",
-              min: { value: 0, message: "Giá không được âm" },
-            })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Giá phòng"
+            {...register("price", { required: "Giá không được để trống", min: 0 })}
+            className="border p-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.price && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.price.message}
-            </span>
-          )}
+          {errors.price && <span className="text-red-600 text-sm mt-2">{errors.price.message}</span>}
         </div>
 
-        {/* giá thay đổi */}
+        {/* Price Surcharge */}
         <div className="flex flex-col">
+          <label className="text-lg font-semibold text-gray-800 mb-2">Phụ Thu</label>
           <input
             type="number"
-            placeholder="price_surcharge"
+            placeholder="Phụ thu (nếu có)"
             {...register("price_surcharge")}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        {/* available */}
+        {/* Available Rooms */}
         <div className="flex flex-col">
+          <label className="text-lg font-semibold text-gray-800 mb-2">Phòng còn trống</label>
           <input
             type="text"
-            placeholder="available_rooms"
-            {...register("available_rooms", {
-              required: "available_rooms không được để trống",
-            })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Số phòng còn trống"
+            {...register("available_rooms", { required: "Số phòng còn trống không được để trống" })}
+            className="border p-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.available_rooms && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.available_rooms.message}
-            </span>
-          )}
+          {errors.available_rooms && <span className="text-red-600 text-sm mt-2">{errors.available_rooms.message}</span>}
         </div>
-        {/* Ảnh */}
+
+        {/* Image */}
         <div className="flex flex-col">
+          <label className="text-lg font-semibold text-gray-800 mb-2">Ảnh Phòng</label>
           <input
             type="file"
             accept="image/*"
-            {...register("image", { required: "Vui lòng chọn ảnh" })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {...register("image", { required: "Vui lòng chọn ảnh phòng" })}
+            className="border p-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.image && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.image.message}
-            </span>
-          )}
+          {errors.image && <span className="text-red-600 text-sm mt-2">{errors.image.message}</span>}
         </div>
 
-        {/* Mô tả */}
+        {/* Description */}
         <div className="flex flex-col">
+          <label className="text-lg font-semibold text-gray-800 mb-2">Mô Tả Phòng</label>
           <textarea
-            placeholder="Mô tả"
-            {...register("description", {
-              required: "Mô tả không được để trống",
-            })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Mô tả về phòng"
+            {...register("description", { required: "Mô tả không được để trống" })}
+            className="border p-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.description && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.description.message}
-            </span>
-          )}
+          {errors.description && <span className="text-red-600 text-sm mt-2">{errors.description.message}</span>}
         </div>
 
-        {/* Nút Submit */}
-        <button
-          type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300"
-        >
-          Thêm mới
-        </button>
+        {/* Submit Button */}
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition duration-300 w-full sm:w-auto"
+          >
+            Thêm Mới Phòng
+          </button>
+        </div>
       </form>
     </div>
   );

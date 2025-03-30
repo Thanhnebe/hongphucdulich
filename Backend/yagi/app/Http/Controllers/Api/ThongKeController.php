@@ -28,43 +28,48 @@ class ThongKeController extends Controller
 
         $thongKeTongQuan = (object) [
             'tong_doanh_thu' => DB::table('payments')
-                ->where('status', 'complete')
+                ->where('status', 'completed')  // Corrected status value
                 ->whereBetween('created_at', [$startDate, $endDate])
-                ->sum(DB::raw('COALESCE(total_amount, 0)')),  // Tổng doanh thu
+                ->sum(DB::raw('COALESCE(total_amount, 0)')),  // Total revenue
 
             'danh_gia_tb' => DB::table('reviews')
                 ->whereBetween('created_at', [$startDate, $endDate])
-                ->avg(DB::raw('COALESCE(rating, 0)')),  // Đánh giá trung bình
+                ->avg(DB::raw('COALESCE(rating, 0)')),  // Average rating
 
             'tong_don_xac_nhan' => DB::table('payments')
-                ->where('status', 'complete')
+                ->where('status', 'completed')
                 ->whereBetween('created_at', [$startDate, $endDate])
-                ->count(),  // Tổng số đơn xác nhận
+                ->count(),  // Total number of confirmed orders
 
             'tong_so_khach_da_den' => DB::table('bookings')
                 ->where('status', 'checkin')
                 ->whereBetween('check_in', [$startDate, $endDate])
-                ->sum(DB::raw('COALESCE(guests, 0)')),  // Tổng số khách đã đến
+                ->sum(DB::raw('COALESCE(guests, 0)')),  // Total number of guests
 
             'tong_don_dat_phong' => DB::table('payments')
                 ->whereBetween('created_at', [$startDate, $endDate])
-                ->count(),  // Tổng số đơn đặt phòng
+                ->count(),  // Total number of bookings
 
             'tong_don_huy' => DB::table('payments')
                 ->where('status', 'failed')
                 ->whereBetween('created_at', [$startDate, $endDate])
-                ->count(),  // Tổng số đơn hủy
+                ->count(),  // Total number of cancelled orders
 
-            'ti_le_huy' => (DB::table('payments')
-                ->where('status', 'failed')
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->count() * 100 / DB::table('payments')->whereBetween('created_at', [$startDate, $endDate])->count()) ?? 0,  // Tỷ lệ hủy
+            'ti_le_huy' => DB::raw('
+                CASE 
+                    WHEN (SELECT COUNT(*) FROM payments WHERE status = "failed" AND created_at BETWEEN ? AND ?) = 0
+                    THEN 0
+                    ELSE (SELECT COUNT(*) FROM payments WHERE status = "failed" AND created_at BETWEEN ? AND ?) * 100.0 / 
+                         (SELECT COUNT(*) FROM payments WHERE created_at BETWEEN ? AND ?)
+                END
+            ', [$startDate, $endDate, $startDate, $endDate, $startDate, $endDate]),  // Cancellation rate (avoid division by zero)
 
             'tong_so_thanh_toan_thanh_cong' => DB::table('payments')
-                ->where('status', 'complete')
+                ->where('status', 'completed')
                 ->whereBetween('created_at', [$startDate, $endDate])
-                ->count()  // Tổng số thanh toán thành công
+                ->count()  // Total number of successful payments
         ];
+
 
 
 
@@ -219,30 +224,30 @@ class ThongKeController extends Controller
         //     // ->groupBy('u.id', 'u.name')
         //     // ->get();
         $thongKeKhachHang = DB::table('users as u')
-        ->select(
-            'u.id as id_khach_hang',
-            'u.name as ten_khach_hang',
-            DB::raw('COUNT(DISTINCT b.id) as so_lan_dat_phong'),
-            DB::raw('COUNT(DISTINCT CASE WHEN p.status = "complete" THEN p.id END) as so_lan_dat_phong_thanh_cong'),
-            DB::raw('IF(COUNT(p.id) > 0, COUNT(DISTINCT CASE WHEN p.status = "complete" THEN p.id END) * 100.0 / COUNT(DISTINCT p.id), 0) as ty_le_dat_phong_thanh_cong'),
-            DB::raw('IF(COUNT(p.id) > 0, COUNT(DISTINCT CASE WHEN p.status = "failed" THEN p.id END) * 100.0 / COUNT(DISTINCT p.id), 0) as ty_le_huy_dat_phong'),
-            DB::raw('SUM(DATEDIFF(b.check_out, b.check_in)) as tong_so_ngay_luu_tru'),
-            DB::raw('SUM(p.total_amount) as tong_chi_tieu'),
-            DB::raw('MAX(b.created_at) as ngay_dat_phong_gan_nhat')
-        )
-        ->leftJoin('bookings as b', function($join) use ($startDate, $endDate) {
-            $join->on('u.id', '=', 'b.user_id')
-                 ->whereBetween('b.created_at', [$startDate, $endDate]); // Lọc ngày cho bookings
-        })
-        ->leftJoin('payments as p', function($join) use ($startDate, $endDate) {
-            $join->on('u.id', '=', 'p.user_id')
-                 ->whereBetween('p.created_at', [$startDate, $endDate]); // Lọc ngày cho payments
-        })
-        ->groupBy('u.id', 'u.name')
-        ->orderBy('tong_chi_tieu', 'desc')
-        ->get();
-    
-    
+            ->select(
+                'u.id as id_khach_hang',
+                'u.name as ten_khach_hang',
+                DB::raw('COUNT(DISTINCT b.id) as so_lan_dat_phong'),
+                DB::raw('COUNT(DISTINCT CASE WHEN p.status = "complete" THEN p.id END) as so_lan_dat_phong_thanh_cong'),
+                DB::raw('IF(COUNT(p.id) > 0, COUNT(DISTINCT CASE WHEN p.status = "complete" THEN p.id END) * 100.0 / COUNT(DISTINCT p.id), 0) as ty_le_dat_phong_thanh_cong'),
+                DB::raw('IF(COUNT(p.id) > 0, COUNT(DISTINCT CASE WHEN p.status = "failed" THEN p.id END) * 100.0 / COUNT(DISTINCT p.id), 0) as ty_le_huy_dat_phong'),
+                DB::raw('SUM(DATEDIFF(b.check_out, b.check_in)) as tong_so_ngay_luu_tru'),
+                DB::raw('SUM(p.total_amount) as tong_chi_tieu'),
+                DB::raw('MAX(b.created_at) as ngay_dat_phong_gan_nhat')
+            )
+            ->leftJoin('bookings as b', function ($join) use ($startDate, $endDate) {
+                $join->on('u.id', '=', 'b.user_id')
+                    ->whereBetween('b.created_at', [$startDate, $endDate]); // Lọc ngày cho bookings
+            })
+            ->leftJoin('payments as p', function ($join) use ($startDate, $endDate) {
+                $join->on('u.id', '=', 'p.user_id')
+                    ->whereBetween('p.created_at', [$startDate, $endDate]); // Lọc ngày cho payments
+            })
+            ->groupBy('u.id', 'u.name')
+            ->orderBy('tong_chi_tieu', 'desc')
+            ->get();
+
+
 
 
         return response()->json([

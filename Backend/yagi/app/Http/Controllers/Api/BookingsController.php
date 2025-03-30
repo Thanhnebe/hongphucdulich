@@ -17,38 +17,37 @@ class BookingsController extends Controller
     public function index()
     {
         // Lấy ID của người dùng đã đăng nhập
-        $userId = Auth::id();
-    {
-        // Lấy ID của người dùng đã đăng nhập
-        $userId = Auth::id();
+        $userId = Auth::id(); {
+            // Lấy ID của người dùng đã đăng nhập
+            $userId = Auth::id();
 
-        // Lọc các booking của người dùng hiện tại
-        $bookings = Booking::where('user_id', $userId)->with(['detailrooms.room', 'detailrooms.hotel'])
-            ->orderBy("created_at", "desc")
-            ->get();
+            // Lọc các booking của người dùng hiện tại
+            $bookings = Booking::where('user_id', $userId)->with(['detailrooms.room', 'detailrooms.hotel'])
+                ->orderBy("created_at", "desc")
+                ->get();
 
-        // Kiểm tra nếu không có booking nào
-        if ($bookings->isEmpty()) {
+            // Kiểm tra nếu không có booking nào
+            if ($bookings->isEmpty()) {
+                return response()->json([
+                    'message' => 'No bookings found',
+                    'status_code' => 404,
+                ], 404);
+            }
+            // Kiểm tra nếu không có booking nào
+            if ($bookings->isEmpty()) {
+                return response()->json([
+                    'message' => 'No bookings found',
+                    'status_code' => 404,
+                ], 404);
+            }
+
+            // Trả về danh sách booking của người dùng hiện tại
             return response()->json([
-                'message' => 'No bookings found',
-                'status_code' => 404,
-            ], 404);
+                'data' => $bookings,
+                'message' => 'Bookings retrieved successfully',
+                'status_code' => 200,
+            ], 200);
         }
-        // Kiểm tra nếu không có booking nào
-        if ($bookings->isEmpty()) {
-            return response()->json([
-                'message' => 'No bookings found',
-                'status_code' => 404,
-            ], 404);
-        }
-
-        // Trả về danh sách booking của người dùng hiện tại
-        return response()->json([
-            'data' => $bookings,
-            'message' => 'Bookings retrieved successfully',
-            'status_code' => 200,
-        ], 200);
-    }
         // Trả về danh sách booking của người dùng hiện tại
         return response()->json([
             'data' => $bookings,
@@ -200,13 +199,7 @@ class BookingsController extends Controller
         if (!Auth::check()) {
             return response()->json(['error' => 'User not logged in'], 401);
         }
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'User not logged in'], 401);
-        }
 
-        // Lấy ID người dùng hiện tại
-        $userId = Auth::id();
         // Lấy ID người dùng hiện tại
         $userId = Auth::id();
 
@@ -218,8 +211,6 @@ class BookingsController extends Controller
 
         // Lấy thông tin chi tiết payment
         $detailbooking = DetailPayment::where('booking_id', $id)->first(); // Lấy 1 bản ghi nếu có
-        // Lấy thông tin chi tiết payment
-        $detailbooking = DetailPayment::where('booking_id', $id)->first(); // Lấy 1 bản ghi nếu có
 
         // Kiểm tra và lấy danh sách dịch vụ đã chọn từ request
         $selectedServiceIds = $request->input('services', []);
@@ -228,22 +219,11 @@ class BookingsController extends Controller
         }
 
         // Lấy danh sách dịch vụ từ cơ sở dữ liệu theo các ID đã chọn
-        $services = Service::whereIn('id', $selectedServiceIds)->get();
-        // Lấy danh sách dịch vụ từ cơ sở dữ liệu theo các ID đã chọn
-        $services = Service::whereIn('id', $selectedServiceIds)->get();
+        $services = service::whereIn('id', $selectedServiceIds)->get();
+        if ($services->isEmpty()) {
+            return response()->json(['error' => 'Dịch vụ không tồn tại'], 404);
+        }
 
-        // if ($services->isEmpty()) {
-        //     return response()->json(['error' => 'Dịch vụ không tồn tại'], 404);
-        // }
-        // if ($services->isEmpty()) {
-        //     return response()->json(['error' => 'Dịch vụ không tồn tại'], 404);
-        // }
-
-        // Cập nhật status cho booking
-        if ($request->has('status')) {
-            $booking->user_id = $userId;
-            $booking->status = $request->status;
-            $booking->save();
         // Cập nhật status cho booking
         if ($request->has('status')) {
             $booking->user_id = $userId;
@@ -255,15 +235,7 @@ class BookingsController extends Controller
             foreach ($services as $service) {
                 $totalPrice += $service->price;
             }
-            // Tính tổng tiền mới của booking (cộng thêm tiền các dịch vụ đã chọn)
-            $totalPrice = $booking->total_price;
-            foreach ($services as $service) {
-                $totalPrice += $service->price;
-            }
 
-            // Cập nhật lại tổng tiền cho booking
-            $booking->total_price = $totalPrice;
-            $booking->save();
             // Cập nhật lại tổng tiền cho booking
             $booking->total_price = $totalPrice;
             $booking->save();
@@ -279,19 +251,7 @@ class BookingsController extends Controller
 
                 DetailPayment::create($data);  // Thêm mới thông tin vào bảng DetailPayment
             }
-                DetailPayment::create($data);  // Thêm mới thông tin vào bảng DetailPayment
-            }
 
-            // Trả về kết quả
-            return response()->json([
-                'data' => $booking,
-                'message' => 'Booking status updated and services added successfully',
-                'status_code' => 200,
-            ], 200);
-        } else {
-            return response()->json(['error' => 'Status is required'], 400);
-        }
-    }
             // Trả về kết quả
             return response()->json([
                 'data' => $booking,

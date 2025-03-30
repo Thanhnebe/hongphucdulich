@@ -1,61 +1,50 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 type Props = {};
-const imageData = [
-  { image: "src/upload/dv1.jpeg" },
-  { image: "src/upload/dv2.jpeg" },
-  { image: "src/upload/dv3.jpeg" },
-  { image: "src/upload/dv4.jpeg" },
-  { image: "src/upload/dv5.jpeg" },
-  { image: "src/upload/dv6.jpeg" },
+
+const services = [
+  {
+    title: "Thuê Xe Tự Lái",
+    description:
+      "Dịch vụ cho thuê xe tự lái với nhiều dòng xe hiện đại, tiện nghi, phù hợp cho mọi nhu cầu di chuyển.",
+    image: "https://thuexedongduong.com/wp-content/uploads/2021/05/thue-xe-4-cho-tphcm-5-1.jpg",
+    link: "/carrental",
+  },
+  {
+    title: "Đặt Vé Máy Bay",
+    description:
+      "Đặt vé máy bay giá rẻ, nhanh chóng, tiện lợi với nhiều hãng hàng không uy tín.",
+    image: "https://dulichhangkhong.com.vn/ve-may-bay/vnt_upload/news/08_2021/888-1578475996-4245-1578566639.png_1.png",
+    link: "/findflight",
+  },
 ];
+
 const Service = (props: Props) => {
   return (
-    <div className="w-full">
-      <div className="relative h-[300px]">
-        <div
-          style={{
-            backgroundImage: 'url("src/upload/dichvu.jpeg")',
-            backgroundSize: "cover",
-            backgroundPosition: "0px",
-          }}
-          className="absolute w-full h-[399px] "
-        >
-          <p className="font-taviraj text-[61px]  italic font-extrabold  text-center mt-[150px] text-[#FFFFFF]">
-            Giải trí
-          </p>
-        </div>
+    <div className="w-full bg-gray-100">
+      {/* Banner */}
+      <div className="relative h-[400px] flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: 'url("src/upload/dichvu.jpeg")' }}>
+        <p className="text-white text-5xl font-bold italic">Dịch Vụ</p>
       </div>
 
-      <div className="content mt-[150px]">
-        <div className="max-w-4xl mx-auto p-4 font-sans">
-          <section className="mb-8 max-w-3xl ml-10">
-            <p className="mb-4 font-jaldi text-xl tracking-wider text-justify ">
-              Với những lợi thế sẵn có về nguồn lực cũng như nỗ lực không ngừng
-              trong việc giới thiệu tới khách hàng những dịch vụ du lịch, giải
-              trí hiện đại hàng đầu, YaGi Group đã và đang phát triển nhiều hạng
-              mục dịch vụ giải trí bao gồm hệ thống dịch vụ truyền hình cáp
-              SCTV, các khu vui chơi giải trí (Công viên văn hóa Đầm Sen, Làng
-              du lịch Bình Quới, Khu du lịch Sinh thái…), sân golf Thủ Đức,
-              Trung tâm Hội chợ Triển lãm Sài Gòn (SECC) và hệ thống các câu lạc
-              bộ trò chơi điện tử có thưởng.
-            </p>
-          </section>
-          <h1 className="font-taviraj text-[40px] leading-81.89px font-semibold text-center  mb-6  ">Hình Ảnh</h1>
-          <div className="grid grid-cols-2 ">
-            {imageData.map((item, index) => (
-              <div key={index} className="flex justify-center">
-                <img
-                  src={item.image}
-                  alt=""
-                  className=" w-[350px] h-[350px] mb-5"
-                />
+      {/* Dịch Vụ */}
+      <div className="max-w-6xl mx-auto py-16 px-4">
+        <h1 className="text-4xl font-semibold text-center mb-12 text-gray-800">Các Dịch Vụ Của Chúng Tôi</h1>
+        <div className="grid md:grid-cols-2 gap-12">
+          {services.map((service, index) => (
+            <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <img src={service.image} alt={service.title} className="w-full h-64 object-cover" />
+              <div className="p-6 text-center">
+                <h2 className="text-2xl font-bold text-gray-800">{service.title}</h2>
+                <p className="text-gray-600 mt-3">{service.description}</p>
+                <Link to={service.link} className="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                  Xem Chi Tiết
+                </Link>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-        <div></div>
-        <div></div>
       </div>
     </div>
   );

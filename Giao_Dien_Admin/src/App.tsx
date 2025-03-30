@@ -36,6 +36,8 @@ import DashboardContext from "./context/dashboard";
 import ServiceContext from "./context/serviceCT";
 import ServiceList from "./admin/service/serviceList";
 import AddService from "./admin/service/addService";
+import FlightManagement from "./admin/Flight";
+import CarManagement from "./admin/CarManagement";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -146,6 +148,12 @@ function App() {
         {
           path: "cities/add",
           element: <AddCities />,
+        }, {
+          path: "flight",
+          element: <FlightManagement />,
+        }, {
+          path: "carrental",
+          element: <CarManagement />,
         },
         {
           path: "rooms",

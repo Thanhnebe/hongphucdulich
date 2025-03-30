@@ -36,6 +36,10 @@ import { PaymentProvider } from "./context/paymentCT";
 import RoomContext from "./context/roomCT";
 import History from "./component/History/History";
 import PayCart from "./component/Pay/PayCart";
+import CarList from "./component/CarRentalSearch";
+import CarDetail from "./component/CarDetail";
+import FlightSearch from "./FlightSearch";
+import FlightResults from "./FlightResults";
 // import BookingContext from "./context/booking";
 
 function App() {
@@ -43,7 +47,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [user, setUser] = useState({
-     id:0,
+    id: 0,
     name: "",
     email: "",
     phone: "",
@@ -75,7 +79,7 @@ function App() {
   const handleLogout = async () => {
     try {
       await logoutUser();
-      setUser({ id:0,name: "", email: "", phone: "", address: "" });
+      setUser({ id: 0, name: "", email: "", phone: "", address: "" });
       setIsLoggedIn(false);
       setUserName(null);
       localStorage.removeItem("authToken");
@@ -96,13 +100,13 @@ function App() {
         <CartProvider>
           <PaymentProvider>
             {/* <BookingContext> */}
-              <RoomContext>
-                <Client
-                  isLoggedIn={isLoggedIn}
-                  userName={userName}
-                  onLogout={handleLogout}
-                />
-              </RoomContext>
+            <RoomContext>
+              <Client
+                isLoggedIn={isLoggedIn}
+                userName={userName}
+                onLogout={handleLogout}
+              />
+            </RoomContext>
             {/* </BookingContext> */}
           </PaymentProvider>
         </CartProvider>
@@ -126,6 +130,20 @@ function App() {
         {
           path: "paycart",
           element: <PayCart />,
+        },
+        {
+          path: "carrental",
+          element: <CarList />,
+        }, {
+          path: "findflight",
+          element: <FlightSearch />,
+        },
+        {
+          path: "car-detail/:id",
+          element: <CarDetail />,
+        }, {
+          path: "flight-results",
+          element: <FlightResults />,
         },
 
         {
